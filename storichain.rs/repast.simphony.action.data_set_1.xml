@@ -1,0 +1,49 @@
+<repast.simphony.data2.engine.DataSetDescriptor simphonyVersion="2.6.0">
+  <name>A Data Set</name>
+  <type>AGGREGATE</type>
+  <inclTick>true</inclTick>
+  <inclBatchRun>false</inclBatchRun>
+  <inclRandomSeed>false</inclRandomSeed>
+  <scheduleParams>
+    <start>1.0</start>
+    <interval>1.0</interval>
+    <priority>-Infinity</priority>
+    <pType>LAST</pType>
+    <duration>-1.0</duration>
+    <frequency>REPEAT</frequency>
+    <hashCode>2041597590</hashCode>
+  </scheduleParams>
+  <atEnd>false</atEnd>
+  <methodDataSources class="linked-hash-map">
+    <entry>
+      <string>STbetweennessCentrality</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>STbetweennessCentrality</id>
+        <className>storichain.ST</className>
+        <methodName>getBetweennessCentrality</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>PD</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>PD</id>
+        <className>storichain.PD</className>
+        <methodName>getBetweennessCentrality</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>StoryBetweennessCentrality</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>StoryBetweennessCentrality</id>
+        <className>storichain.RD</className>
+        <methodName>getBetweennessCentrality</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+  </methodDataSources>
+  <countSources class="linked-hash-map"/>
+  <customNADataSources class="linked-hash-map"/>
+  <customAggDataSources class="linked-hash-map"/>
+</repast.simphony.data2.engine.DataSetDescriptor>

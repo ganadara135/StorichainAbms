@@ -2,13 +2,13 @@ package storichain;
 
 import repast.simphony.context.Context;
 import repast.simphony.context.space.graph.NetworkGenerator;
+import repast.simphony.random.RandomHelper;
 import repast.simphony.space.graph.Network;
 
 public class BarabasiAlbertNetworkGenerator extends EntreNetworkGenerator implements NetworkGenerator<Object> {
 
 	public BarabasiAlbertNetworkGenerator(Context<Object> context) {
 		super(context);
-		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
@@ -19,9 +19,37 @@ public class BarabasiAlbertNetworkGenerator extends EntreNetworkGenerator implem
 		initializeNetwork(getEdgeProbability());		
 
 		// Evolve network using preferential attachment
-		evolveNetwork();
+		//evolveNetwork();
 
 		return network;
+	}
+	
+	/**
+	 * Preferential attachment
+	 * @param n Node to be attached
+	 */
+	public void attachNode(Object n) {
+		context.add(n);
+		//When checking the network degree, look only at the "entreprenurial network",
+		// i.e at the network without means and goals
+		for (int i = 0; i < edgesPerStep; i++) {
+			
+			double totalDegree = network.getDegree();
+			
+			boolean attached = false;
+			
+			while (!attached) {
+				
+				Object o = context.getRandomObject();
+				
+				double prob = (network.getDegree(o) + 1) / (totalDegree + network.size());
+				
+				if (prob > 0.0 && RandomHelper.nextDoubleFromTo(0,1) <= prob) {
+					network.addEdge(n, o);
+					attached = true;
+				}			
+			}
+		}
 	}
 
 }

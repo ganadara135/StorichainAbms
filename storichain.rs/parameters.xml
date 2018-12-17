@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <parameters>
 
-	<parameter name="randomSeed" displayName="Default Random Seed" type="int" defaultValue="__NULL__" />
+	<parameter name="randomSeed" displayName="Default Random Seed" type="int" defaultValue="__NULL__" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
+	
+	<parameter name="numberOfPD" displayName="Number of PD" type="int" 
+						defaultValue="50" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$IntConverter" />
+	<parameter name="numberOfRD" displayName="Number of RD" type="int" 
+						defaultValue="50" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$IntConverter" />
+	<parameter name="numberOfST" displayName="Number of ST" type="int" 
+						defaultValue="50" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$IntConverter" />
+	<parameter name="adaptationSpeed" displayName="Adaptation speed  (1-5)" type="int" 
+						defaultValue="1" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$IntConverter" />
+	<parameter name="randomNetworkDensity" displayName="Random network density" type="double" 
+						defaultValue="0.3" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />
+	<parameter name="networkGenerator" displayName="Network generator" type="java.lang.String" 
+						defaultValue="BarabasiAlbert" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"
+						values="BarabasiAlbert ZombieNetwork RandomNetwork" />
 
 </parameters>
