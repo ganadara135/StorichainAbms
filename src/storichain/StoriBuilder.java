@@ -3,6 +3,8 @@ package storichain;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 
 import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
 import edu.uci.ics.jung.graph.Graph;
@@ -12,6 +14,7 @@ import repast.simphony.context.space.graph.NetworkBuilder;
 import repast.simphony.dataLoader.ContextBuilder;
 import repast.simphony.engine.schedule.ISchedule;
 import repast.simphony.engine.schedule.ScheduleParameters;
+import repast.simphony.random.RandomHelper;
 import repast.simphony.space.graph.EdgeCreator;
 import repast.simphony.space.graph.Network;
 import repast.simphony.space.graph.RepastEdge;
@@ -22,31 +25,37 @@ public class StoriBuilder implements ContextBuilder<Object> {
 	public static Network<Object> network;
 	public static Network<Object> effectuationNetwork;	
 	private static EntreNetworkGenerator networkGenerator;
-	public static ST st;
-	public static RD rd;
-	public static PD pd;
+	public static boolean allEntrepreneursOffering;
 	public static ArrayList<ST> stes;
+	public static ArrayList<RD> rdes;
+	public static ArrayList<PD> pdes;
 	
 	public static EffectuatorST effectuatorST;
 	public static EffectuatorRD effectuatorRD;
 	public static EffectuatorPD effectuatorPD;
 	private static HashMap<String, Integer> lastIds;
+	public static int staticDemandSteps;
 
 	
 	@Override
 	public Context build(Context<Object> context) {
 		Parameters.initialize();
 		
-		
+		stes = new ArrayList<ST>();
+	//	oldDemand = new ArrayList<int[]>();
+		rdes = new ArrayList<RD>();
+		pdes = new ArrayList<PD>();
+		staticDemandSteps = 0;
+			
 		context.setId("storichain");
 		
 		StoriBuilder.context = context;
 		
 		buildNetworks();
 		
-		st = new ST(context, network, "StoryTeller");
-		rd = new RD(context, network, "Reader");
-		pd = new PD(context, network, "Producer");
+		effectuatorST = new EffectuatorST(context, network, "StoryTeller");
+		effectuatorRD = new EffectuatorRD(context, network, "Reader");
+		effectuatorPD = new EffectuatorPD(context, network, "Producer");
 		
 		//Network generation
 		if (Parameters.networkGenerator.equals("BarabasiAlbert")) {
@@ -63,10 +72,64 @@ public class StoriBuilder implements ContextBuilder<Object> {
 		
 		network = networkGenerator.createNetwork(network);
 		
+		initializeDemandVectors();
+		aggregateProductVectors();
+		
+		calculateBetweennesCentralities();
+		
+		allEntrepreneursOffering = false;
+		
 		scheduleActions();
 		
 				
 		return context;
+	}
+	
+	/**
+	 * Refine the product vector of the entrepreneurs based on the
+	 * connected customers (randomly)
+	 */
+	public void aggregateProductVectors() {
+		
+		if (!Parameters.aggregateProductVector) {
+			return;
+		}
+		
+		double prob = RandomHelper.nextDoubleFromTo(0, 1);
+		
+		for (Object o: context.getObjects(ST.class)) {
+			
+			//Skip causator and effectuator
+			
+			//if (o instanceof Causator || o instanceof Effectuator) {
+			if (o instanceof EffectuatorST) {
+				continue;
+			}
+			
+			double r = RandomHelper.nextDoubleFromTo(0, 1);
+			
+			if (r >= prob) {
+				ST e = (ST)o;
+				e.aggregateGoalProductVector();
+			}
+		}		
+	}
+	
+	/**
+	 * Recursively get all customer acquaintances of a node using a specified network depth.
+	 * @param n node
+	 * @param depth
+	 * @param List of customers acquaintances
+	 */
+	public static void getSTAcquiantances(Object n, int depth, List<ST> customers) {		
+		for (Object o: network.getAdjacent(n)) {
+			if (o instanceof ST) {
+				customers.add((ST)o);
+			}
+			if (depth > 1) {
+				getSTAcquiantances(o, depth-1, customers);
+			}
+		}
 	}
 
 	// default setting such as color, thickness, 
@@ -82,6 +145,29 @@ public class StoriBuilder implements ContextBuilder<Object> {
 		NetworkBuilder<Object> netBuilder3 = new NetworkBuilder<Object>("effectual network",context, false);
 		netBuilder3.setEdgeCreator(edgeCreator);	
 		effectuationNetwork = netBuilder3.buildNetwork();
+	}
+	
+	/**
+	 *  Initialize customer demand vectors using the define "Market split", i.e
+	 *  the percentage of customers that "like" a certain product element
+	 */
+	private void initializeDemandVectors() {
+		ArrayList<ST> demandST = new ArrayList<ST>();
+		
+		for (Object c: context.getObjects(ST.class)) {
+			demandST.add((ST)c);
+		}
+		
+		int shouldLikeProductElement = (int)Math.ceil(((double)Parameters.marketSplit / 100) * demandST.size());
+		
+		for (int i = 0; i < Parameters.vectorSpaceSize; i++) {
+			ArrayList<ST> copy = new ArrayList<ST>(demandST);
+			
+			for (int j = 0; j < shouldLikeProductElement; j++) {
+				ST c = copy.remove(RandomHelper.nextIntFromTo(0, copy.size() - 1));
+				c.getDemandVector()[i] = 1;
+			}
+		}
 	}
 	
 	/**
