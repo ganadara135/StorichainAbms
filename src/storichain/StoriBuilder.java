@@ -27,7 +27,9 @@ public class StoriBuilder implements ContextBuilder<Object> {
 	public static PD pd;
 	public static ArrayList<ST> stes;
 	
-	public static Effectuator effectuator;
+	public static EffectuatorST effectuatorST;
+	public static EffectuatorRD effectuatorRD;
+	public static EffectuatorPD effectuatorPD;
 	private static HashMap<String, Integer> lastIds;
 
 	

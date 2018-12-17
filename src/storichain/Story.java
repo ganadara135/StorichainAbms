@@ -3,7 +3,7 @@ package storichain;
 import repast.simphony.context.Context;
 import repast.simphony.space.graph.Network;
 
-public class Story extends Effectuator{
+public class Story extends Agent{
 	
 	protected double tomato;
 	protected double potato;
