@@ -7,12 +7,8 @@
       <string>repast.simphony.visualizationOGL2D.DefaultStyleOGL2D</string>
     </entry>
     <entry>
-      <string>storichain.RD</string>
-      <string>repast.simphony.visualizationOGL2D.DefaultStyleOGL2D</string>
-    </entry>
-    <entry>
       <string>storichain.ST</string>
-      <string>repast.simphony.visualizationOGL2D.DefaultStyleOGL2D</string>
+      <string>repast.simphony.visualization.editedStyle.EditedStyle2D</string>
     </entry>
   </styles>
   <editedStyles>
@@ -21,24 +17,20 @@
       <null/>
     </entry>
     <entry>
-      <string>storichain.RD</string>
-      <null/>
-    </entry>
-    <entry>
       <string>storichain.ST</string>
-      <null/>
+      <string>storichain.ST.style_2.xml</string>
     </entry>
   </editedStyles>
   <netStyles>
     <entry>
       <string>full network</string>
-      <string>repast.simphony.visualizationOGL2D.DefaultEdgeStyleOGL2D</string>
+      <string>repast.simphony.visualization.editedStyle.EditedEdgeStyle2D</string>
     </entry>
   </netStyles>
   <editedNetStyles>
     <entry>
       <string>full network</string>
-      <null/>
+      <string>fullnetwork.style_1.xml</string>
     </entry>
   </editedNetStyles>
   <frequency>ON_NEW</frequency>
@@ -49,7 +41,7 @@
     <pType>LAST</pType>
     <duration>-1.0</duration>
     <frequency>REPEAT</frequency>
-    <hashCode>-1572814355</hashCode>
+    <hashCode>-707437580</hashCode>
   </schedParams>
   <layoutClassName>repast.simphony.visualization.visualization2D.Random2DLayout</layoutClassName>
   <layoutProjection>full network</layoutProjection>
@@ -57,15 +49,11 @@
   <layerOrder>
     <entry>
       <string>storichain.PD</string>
-      <int>0</int>
-    </entry>
-    <entry>
-      <string>storichain.RD</string>
-      <int>2</int>
+      <int>1</int>
     </entry>
     <entry>
       <string>storichain.ST</string>
-      <int>1</int>
+      <int>0</int>
     </entry>
   </layerOrder>
   <projections>

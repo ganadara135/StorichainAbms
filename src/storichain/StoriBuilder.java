@@ -1,6 +1,7 @@
 package storichain;
 
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import repast.simphony.context.space.graph.NetworkBuilder;
 import repast.simphony.dataLoader.ContextBuilder;
 import repast.simphony.engine.schedule.ISchedule;
 import repast.simphony.engine.schedule.ScheduleParameters;
+import repast.simphony.engine.schedule.ScheduledMethod;
 import repast.simphony.random.RandomHelper;
 import repast.simphony.space.graph.EdgeCreator;
 import repast.simphony.space.graph.Network;
@@ -27,14 +29,15 @@ public class StoriBuilder implements ContextBuilder<Object> {
 	private static EntreNetworkGenerator networkGenerator;
 	public static boolean allEntrepreneursOffering;
 	public static ArrayList<ST> stes;
-	public static ArrayList<RD> rdes;
+	//public static ArrayList<RD> rdes;
 	public static ArrayList<PD> pdes;
 	
 	public static EffectuatorST effectuatorST;
-	public static EffectuatorRD effectuatorRD;
+	//public static EffectuatorRD effectuatorRD;
 	public static EffectuatorPD effectuatorPD;
 	private static HashMap<String, Integer> lastIds;
 	public static int staticDemandSteps;
+	public static double[]  productElementCost;   //이상적 상품(스토리)의 cost
 
 	
 	@Override
@@ -43,22 +46,32 @@ public class StoriBuilder implements ContextBuilder<Object> {
 		
 		stes = new ArrayList<ST>();
 	//	oldDemand = new ArrayList<int[]>();
-		rdes = new ArrayList<RD>();
+		//rdes = new ArrayList<RD>();
 		pdes = new ArrayList<PD>();
 		staticDemandSteps = 0;
+		
+		generateProductElementCosts();
+		
+		lastIds = new HashMap<String, Integer>();
 			
 		context.setId("storichain");
 		
 		StoriBuilder.context = context;
 		
+		
 		buildNetworks();
 		
+		
+		
 		effectuatorST = new EffectuatorST(context, network, "StoryTeller");
-		effectuatorRD = new EffectuatorRD(context, network, "Reader");
+	//	effectuatorRD = new EffectuatorRD(context, network, "Reader");
 		effectuatorPD = new EffectuatorPD(context, network, "Producer");
+		
+		System.out.println("55555555555555555555555");
 		
 		//Network generation
 		if (Parameters.networkGenerator.equals("BarabasiAlbert")) {
+			System.out.println("6666666666666666666666666");
 			networkGenerator = new BarabasiAlbertNetworkGenerator(context);
 		} else if (Parameters.networkGenerator.equals("ZombieNetwork")) {
 			networkGenerator = new ZombieNetworkGenerator(context);
@@ -66,22 +79,32 @@ public class StoriBuilder implements ContextBuilder<Object> {
 			networkGenerator = new RandomNetworkGenerator(context, Parameters.randomNetworkDensity);
 		}
 		
+		System.out.println("7777777777777777777777");
+		
 		networkGenerator.setTotalST(Parameters.numberOfST);
 		networkGenerator.setTotalPD(Parameters.numberOfPD);
-		networkGenerator.setTotalRD(Parameters.numberOfRD);
+		//networkGenerator.setTotalRD(Parameters.numberOfRD);
+		
 		
 		network = networkGenerator.createNetwork(network);
 		
+		System.out.println("888888888888888888888888");
+		
 		initializeDemandVectors();
+		
+		System.out.println("99999999999999999999999");
 		aggregateProductVectors();
 		
 		calculateBetweennesCentralities();
 		
 		allEntrepreneursOffering = false;
 		
+		System.out.println("00000000000000000000000");
+		
 		scheduleActions();
 		
-				
+		
+		
 		return context;
 	}
 	
@@ -98,9 +121,7 @@ public class StoriBuilder implements ContextBuilder<Object> {
 		double prob = RandomHelper.nextDoubleFromTo(0, 1);
 		
 		for (Object o: context.getObjects(ST.class)) {
-			
 			//Skip causator and effectuator
-			
 			//if (o instanceof Causator || o instanceof Effectuator) {
 			if (o instanceof EffectuatorST) {
 				continue;
@@ -121,13 +142,13 @@ public class StoriBuilder implements ContextBuilder<Object> {
 	 * @param depth
 	 * @param List of customers acquaintances
 	 */
-	public static void getSTAcquiantances(Object n, int depth, List<ST> customers) {		
+	public static void getPDAcquiantances(Object n, int depth, List<PD> customers) {		
 		for (Object o: network.getAdjacent(n)) {
-			if (o instanceof ST) {
-				customers.add((ST)o);
+			if (o instanceof PD) {
+				customers.add((PD)o);
 			}
 			if (depth > 1) {
-				getSTAcquiantances(o, depth-1, customers);
+				getPDAcquiantances(o, depth-1, customers);
 			}
 		}
 	}
@@ -148,23 +169,23 @@ public class StoriBuilder implements ContextBuilder<Object> {
 	}
 	
 	/**
-	 *  Initialize customer demand vectors using the define "Market split", i.e
+	 *  Initialize All users' demand vectors using the define "Market split", i.e
 	 *  the percentage of customers that "like" a certain product element
 	 */
 	private void initializeDemandVectors() {
-		ArrayList<ST> demandST = new ArrayList<ST>();
+		ArrayList<PD> demand = new ArrayList<PD>();
 		
-		for (Object c: context.getObjects(ST.class)) {
-			demandST.add((ST)c);
+		for (Object c: context.getObjects(PD.class)) {
+			demand.add((PD)c);
 		}
 		
-		int shouldLikeProductElement = (int)Math.ceil(((double)Parameters.marketSplit / 100) * demandST.size());
+		int shouldLikeProductElement = (int)Math.ceil(((double)Parameters.marketSplit / 100) * demand.size());
 		
 		for (int i = 0; i < Parameters.vectorSpaceSize; i++) {
-			ArrayList<ST> copy = new ArrayList<ST>(demandST);
+			ArrayList<PD> copy = new ArrayList<PD>(demand);
 			
 			for (int j = 0; j < shouldLikeProductElement; j++) {
-				ST c = copy.remove(RandomHelper.nextIntFromTo(0, copy.size() - 1));
+				PD c = copy.remove(RandomHelper.nextIntFromTo(0, copy.size() - 1));
 				c.getDemandVector()[i] = 1;
 			}
 		}
@@ -227,30 +248,105 @@ public class StoriBuilder implements ContextBuilder<Object> {
 		
 		
 		//Schedule adaptProductVector for each ST
-		ArrayList<ST> st = new ArrayList<ST>();
+		//ArrayList<ST> st = new ArrayList<ST>();
 		ArrayList<PD> pd = new ArrayList<PD>();
-		ArrayList<RD> rd = new ArrayList<RD>();
-		
-		for (Object c: context.getObjects(ST.class)) {
-			st.add((ST)c);
-		}
-		
-		ScheduleParameters parameters = ScheduleParameters.createRepeating(1, 6 - Parameters.adaptationSpeed, 1);		
-		//schedule.scheduleIterable(parameters, st, "adaptProductVector", true);
-		schedule.scheduleIterable(parameters, st, "adaptST", true);
+		//ArrayList<RD> rd = new ArrayList<RD>();
 		
 		for (Object c: context.getObjects(PD.class)) {
 			pd.add((PD)c);
 		}
 		
-		ScheduleParameters parameters1 = ScheduleParameters.createRepeating(1, 6 - Parameters.adaptationSpeed, 1);		
-		schedule.scheduleIterable(parameters1, pd, "adaptPD", true);
+		ScheduleParameters parameters = ScheduleParameters.createRepeating(1, 6 - Parameters.adaptationSpeed, 1);		
 		
-		for (Object c: context.getObjects(RD.class)) {
-			rd.add((RD)c);
+		schedule.scheduleIterable(parameters, pd, "adaptProductVector", true);
+	}
+	
+	/**
+	 * Randomly generate product element costs
+	 */
+	private void generateProductElementCosts() {
+		productElementCost = new double[Parameters.vectorSpaceSize];
+		double avgAvailableMoney = (Parameters.minAvailableMoney + Parameters.maxAvailableMoney) / 2.0;
+		
+		for (int i = 0; i < productElementCost.length; i++) {
+			productElementCost[i] = RandomHelper.nextIntFromTo(1, 3) * Parameters.minAvailableMoney;
+			productElementCost[i] = productElementCost[i] > avgAvailableMoney ? avgAvailableMoney : productElementCost[i];
+		}
+	}
+	
+	/**
+	 * Returns the "Hamming distance" between two equal length 0-1 vectors
+	 * @param p1
+	 * @param p2
+	 * @return int
+	 */
+	public static int hammingDistance(int[] p1, int[] p2) {
+		int d = 0;
+		
+		for (int i = 0; i < p1.length; i++) {
+			d += p1[i] ^ p2[i];
 		}
 		
-		ScheduleParameters parameters2 = ScheduleParameters.createRepeating(1, 6 - Parameters.adaptationSpeed, 1);		
-		schedule.scheduleIterable(parameters2, rd, "adaptRD", true);		
+		return d;		
+	}
+	
+	public static void printMessage(String m) {
+		ISchedule schedule = repast.simphony.engine.environment.RunEnvironment.getInstance()
+        .getCurrentSchedule();
+		
+		System.out.println(m + " - " + String.valueOf(schedule.getTickCount()));
+	}
+	
+	/**
+	 * Returns the the bits that are different in two equal length 0-1 vectors
+	 * @param p1
+	 * @param p2
+	 * @return s
+	 */
+	public static int[] diff(int[] p1, int[] p2) {
+		int[] diff = new int[p1.length];
+		
+		for (int i = 0; i < p1.length; i++) {
+			diff[i] = p1[i] ^ p2[i];
+		}
+		
+		return diff;
+	}
+	
+	
+	/**
+	 *  Evolves network (if set) during the simulation (adding new nodes randomly)
+	 */
+	@ScheduledMethod(start=1,interval=2)
+	public void evolveNetwork() {
+		
+		double r = RandomHelper.nextDoubleFromTo(0, 1);	
+		
+		if (r < Parameters.newConnectionsProbability) {
+			int random = RandomHelper.nextIntFromTo(1, 5);
+			
+			Object attached;
+			
+			switch (random) {
+				default:
+					PD c = new PD(context, network, nextId("P"));
+					networkGenerator.attachNode(c);
+					attached = c;
+					break;
+				case 2:
+					ST e = new ST(context, network, nextId("S"));	
+					e.generateGoal();
+					networkGenerator.attachNode(e);					
+					attached = e;				
+					break;
+			}
+			
+			for (RepastEdge<Object> edge: network.getEdges(attached)) {
+				((CustomNetworkEdge) edge).setThickness(2.0); 
+				((CustomNetworkEdge) edge).setColor(Color.red);
+			}		
+			
+			calculateBetweennesCentralities();
+		}	
 	}
 }

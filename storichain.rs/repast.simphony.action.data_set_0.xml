@@ -11,33 +11,33 @@
     <pType>LAST</pType>
     <duration>-1.0</duration>
     <frequency>REPEAT</frequency>
-    <hashCode>2041597590</hashCode>
+    <hashCode>-707437580</hashCode>
   </scheduleParams>
   <atEnd>false</atEnd>
   <methodDataSources class="linked-hash-map">
     <entry>
-      <string>STbetweennessCentrality</string>
+      <string>ST_Nego</string>
       <repast.simphony.data2.engine.MethodDataSourceDefinition>
-        <id>STbetweennessCentrality</id>
+        <id>ST_Nego</id>
         <className>storichain.ST</className>
-        <methodName>getBetweennessCentrality</methodName>
+        <methodName>isNegotiating</methodName>
         <aggType>SUM</aggType>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
     <entry>
-      <string>PD</string>
+      <string>PD_Nego</string>
       <repast.simphony.data2.engine.MethodDataSourceDefinition>
-        <id>PD</id>
+        <id>PD_Nego</id>
         <className>storichain.PD</className>
-        <methodName>getBetweennessCentrality</methodName>
+        <methodName>isNegotiating</methodName>
         <aggType>SUM</aggType>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
     <entry>
-      <string>StoryBetweennessCentrality</string>
+      <string>Agent_Between</string>
       <repast.simphony.data2.engine.MethodDataSourceDefinition>
-        <id>StoryBetweennessCentrality</id>
-        <className>storichain.RD</className>
+        <id>Agent_Between</id>
+        <className>storichain.Agent</className>
         <methodName>getBetweennessCentrality</methodName>
         <aggType>SUM</aggType>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>

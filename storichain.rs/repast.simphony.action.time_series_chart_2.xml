@@ -21,9 +21,9 @@
   <showLegend>true</showLegend>
   <seriesIds>
     <entry>
-      <string>PD</string>
+      <string>PD_Nego</string>
       <SeriesData>
-        <label>PD</label>
+        <label>PD_Nego</label>
         <color>
           <red>255</red>
           <green>0</green>
@@ -33,9 +33,9 @@
       </SeriesData>
     </entry>
     <entry>
-      <string>STbetweennessCentrality</string>
+      <string>ST_Nego</string>
       <SeriesData>
-        <label>STbetweennessCentrality</label>
+        <label>ST_Nego</label>
         <color>
           <red>0</red>
           <green>0</green>
@@ -45,9 +45,9 @@
       </SeriesData>
     </entry>
     <entry>
-      <string>StoryBetweennessCentrality</string>
+      <string>Agent_Between</string>
       <SeriesData>
-        <label>StoryBetweennessCentrality</label>
+        <label>Agent_Between</label>
         <color>
           <red>0</red>
           <green>255</green>

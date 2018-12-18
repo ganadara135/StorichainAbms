@@ -32,5 +32,13 @@ public class Means {
 
 		this.money = money;
 	}
+	
+	public void print() {
+		System.out.print("Money: " + String.valueOf(money) + ", Know-How: ");
+		for (int i = 0; i < knowHow.length; i++) {
+			System.out.print(knowHow[i]);
+		}
+		System.out.println();
+	}
 
 }

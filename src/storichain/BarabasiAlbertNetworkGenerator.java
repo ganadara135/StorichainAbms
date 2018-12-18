@@ -11,21 +11,29 @@ public class BarabasiAlbertNetworkGenerator extends EntreNetworkGenerator implem
 		super(context);
 	}
 	
+	
+	/* (non-Javadoc)
+	 * @see repast.simphony.context.space.graph.RandomDensityGenerator#createNetwork(repast.simphony.space.graph.Network)
+	 */
 	@Override
 	public Network<Object> createNetwork(Network<Object> network) {		
 
 		this.network = network;
+		
+		System.out.println("aaaaaaaaaaaaaaaaaaaaaaa");
 
-		initializeNetwork(getEdgeProbability());		
+		initializeNetwork(getEdgeProbability());	
+		
+		System.out.println("bbbbbbbbbbbbbbbbbbbbb");
 
 		// Evolve network using preferential attachment
-		//evolveNetwork();
+		evolveNetwork();
 
 		return network;
 	}
 	
 	/**
-	 * Preferential attachment
+	 * Preferential attachment  // 주변에 클러스터가 큰 그룹에 붙는다.
 	 * @param n Node to be attached
 	 */
 	public void attachNode(Object n) {

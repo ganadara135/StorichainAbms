@@ -5,7 +5,7 @@ import repast.simphony.context.space.graph.NetworkGenerator;
 import repast.simphony.random.RandomHelper;
 import repast.simphony.space.graph.Network;
 
-public class EntreNetworkGenerator implements NetworkGenerator<Object> {
+public abstract class EntreNetworkGenerator implements NetworkGenerator<Object> {
 
 	protected Context<Object> context;
 	protected Network<Object> network;
@@ -14,7 +14,7 @@ public class EntreNetworkGenerator implements NetworkGenerator<Object> {
 	protected int edgesPerStep;
 	protected int totalST;
 	protected int totalPD;
-	protected int totalRD;
+	//protected int totalRD;
 	
 	
 	public EntreNetworkGenerator(Context<Object> context) {
@@ -23,7 +23,7 @@ public class EntreNetworkGenerator implements NetworkGenerator<Object> {
 		edgesPerStep = 0;
 		totalST = 0;
 		totalPD = 0;
-		totalRD = 0;
+		//totalRD = 0;
 	}
 	
 	public void setTotalST(int totalST) {
@@ -41,13 +41,7 @@ public class EntreNetworkGenerator implements NetworkGenerator<Object> {
 	public int getTotalPD() {
 		return totalPD;
 	}
-	public void setTotalRD(int totalRD) {
-		this.totalRD = totalRD;
-	}
-	
-	public int getTotalRD() {
-		return totalRD;
-	}
+
 	
 	public Context<Object> getContext() {
 		return context;
@@ -55,7 +49,6 @@ public class EntreNetworkGenerator implements NetworkGenerator<Object> {
 
 
 	public void setContext(Context<Object> context) {
-
 		this.context = context;
 	}
 
@@ -71,23 +64,24 @@ public class EntreNetworkGenerator implements NetworkGenerator<Object> {
 	
 	public double getEdgeProbability() {
 		return edgeProbability;
-
 	}
 	
-	protected void initializeNetwork(double p) {
+	/**
+	 * Initializes the network
+	 * @param p initial wiring probability
+	 */
+	protected void initializeNetwork(double pp) {
 
-		for (int i = 0; i < 10 && i < totalST; i++) {
+		for (int i = 0; i < 10 && i < totalPD; i++) {
 
-			ST s = new ST(context, network, StoriBuilder.nextId("S"));
+			PD p1 = new PD(context, network, StoriBuilder.nextId("P"));
 
-			context.add(s);
+			context.add(p1);
 
-			StoriBuilder.stes.add(s);
-			totalST--;
-
+			StoriBuilder.pdes.add(p1);
+			totalPD--;
 		}
-		randomWire(p);
-		
+		randomWire(pp);
 	}
 	
 	public void randomWire(double p) {
@@ -102,62 +96,61 @@ public class EntreNetworkGenerator implements NetworkGenerator<Object> {
 		}
 	}
 	
-	/*
+	
 	public void evolveNetwork() {
 		while (totalST > 0 || totalPD > 0) {
 			
 			double random = RandomHelper.nextDoubleFromTo(0, 1);
 			
-			//Enter entrepreneur with less probability than customers
-			if (totalPD > 0 && random <= 0.33) {
+			//Enter entrepreneur=ST with less probability than customers = PD
+			if (totalST > 0 && random <= 0.33) {
 				
-				Effectuator e;
+				ST e = null;
 				
-				int type = RandomHelper.nextIntFromTo(1, 3);
+				int type = RandomHelper.nextIntFromTo(1, 2); // 3);
 				
-				if (type == 1 && StoriBuilder.effectuator != null 
-						&& !context.contains(StoriBuilder.effectuator)) {
-					e = StoriBuilder.effectuator;
-				} else if (type == 2 && StoriBuilder.causator != null 
-						&& !context.contains(StoriBuilder.causator)) {
+				if (type == 1 && StoriBuilder.effectuatorST != null && !context.contains(StoriBuilder.effectuatorST)) {
+					e = StoriBuilder.effectuatorST;
+				} /*else if (type == 2 && StoriBuilder.causatorST != null && !context.contains(StoriBuilder.causatorST)) {
 					e = StoriBuilder.causator;
-				} else {					
-					e = new Entrepreneur(context, network, StoriBuilder.nextId("E"));
+				} */else {					
+					e = new ST(context, network, StoriBuilder.nextId("S"));
 					e.generateGoal();
 				}
+				
 				attachNode(e);
-				totalEntrepreneuers--;	
-			} else if (totalST > 0) {
-				ST c = new ST(context, network, StoriBuilder.nextId("C"));
-				attachNode(c);
-				StoriBuilder.stes.add(c);
 				totalST--;
+			} else if (totalST > 0) {        //  여기서 부터 작업 12월 17일 effectuator  방식으로 처
+				PD c = new PD(context, network, StoriBuilder.nextId("P"));
+				attachNode(c);
+				StoriBuilder.pdes.add(c);
+				totalPD--;
 			}
 		}
-		//Assure the presence of the effectuator and/or causator
 		
-		if (StoriBuilder.effectuator != null 
-				&& !context.contains(StoriBuilder.effectuator)) {
-			Entrepreneur e = null;
+		//Assure the presence of the effectuator and/or causator
+		if (StoriBuilder.effectuatorST != null && !context.contains(StoriBuilder.effectuatorST)) {
+			Agent e = null;
 			do {
-				e = (Entrepreneur)context.getRandomObjects(Entrepreneur.class, 1).iterator().next();
-			} while (e instanceof Causator);
+				e = (ST)context.getRandomObjects(ST.class, 1).iterator().next();
+				System.out.println("xxxxxxxxxxxxxxx");
+			} while (e instanceof RD || e instanceof PD);
 			context.remove(e);
-			attachNode(StoriBuilder.effectuator);
-			
+			attachNode(StoriBuilder.effectuatorST);
 		}
 		
-		if (StoriBuilder.causator != null 
-				&& !context.contains(StoriBuilder.causator)) {
-			Entrepreneur e = null;
+		if (StoriBuilder.effectuatorPD != null 
+				&& !context.contains(StoriBuilder.effectuatorPD)) {
+			Agent e = null;
 			do {
-				e = (Entrepreneur)context.getRandomObjects(Entrepreneur.class, 1).iterator().next();
-			} while (e instanceof Effectuator);
-			context.remove(e);			
-			attachNode(StoriBuilder.causator);
+				e = (PD)context.getRandomObjects(PD.class, 1).iterator().next();
+				System.out.println("yyyyyyyyyyyyy");
+			} while (e instanceof ST || e instanceof RD);
+			context.remove(e);	
+			attachNode(StoriBuilder.effectuatorPD);
 		}
 	}
-	*/
+	
 	
 	@Override
 	public Network<Object> createNetwork(Network<Object> network) {
