@@ -7,7 +7,7 @@ public class Commitment {
 	private Means means;
 	private ST secondParty;
 	
-	private Story story;
+	//private Story story;
 	
 	public Commitment(ST secondParty) {
 		this.secondParty = secondParty;

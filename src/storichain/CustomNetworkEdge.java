@@ -22,8 +22,7 @@ public class CustomNetworkEdge extends RepastEdge<Object> {
 		setColor(Color.BLACK);
 	}
 
-	public CustomNetworkEdge(Object source, Object target, boolean directed,
-			double weight) {
+	public CustomNetworkEdge(Object source, Object target, boolean directed, double weight) {
 		super(source, target, directed, weight);
 		setThickness(1.0);
 		setColor(Color.BLACK);

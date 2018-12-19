@@ -25,7 +25,6 @@ public class ST extends Agent {
 		generateAvailableMeans();
 		setOffering(false);
 		productRefinedOnce = false;
-		
 	}
 	
 	
@@ -188,6 +187,10 @@ public class ST extends Agent {
 	 */
 	@ScheduledMethod(start=4,priority=3,interval=4)
 	public void offerDeal() {
+		
+		//System.out.println("ST offerDeal()");
+		
+		
 		if (StoriBuilder.effectuatorST == null || isNegotiating() || isOffering() || (this instanceof EffectuatorST) ) {
 			return;
 		}

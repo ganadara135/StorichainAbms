@@ -21,7 +21,7 @@ public class EffectuatorST extends ST {
 	 *  @description Generate goal based on the available means (require all of them)
 	 */	
 	@Override
-	public void generateGoal() {		
+	public void generateGoal() {
 		super.generateGoal();
 		
 		if (availableMeans.size() == 0) {
@@ -31,8 +31,82 @@ public class EffectuatorST extends ST {
 		goal.setProductVector(availableMeans.get(0).getKnowHow());
 		
 		if (availableMeans.get(0).getMoney() < goal.getRequiredMeans().getMoney()) {
-			availableMeans.get(0).setMoney(availableMeans.get(0).getMoney() 
-					+ goal.getRequiredMeans().getMoney());
+			availableMeans.get(0).setMoney(availableMeans.get(0).getMoney() + goal.getRequiredMeans().getMoney());
+		}
+	}
+	
+	/* 
+	 * Offers the product to an entrepreneur = ST 
+	 */
+	@ScheduledMethod(start=2,interval=2,priority=1)
+	@Override	
+	public void offer() {
+		
+		//System.out.println("EffectuatorST offer()");
+		
+		ST e = null;
+		
+		if (isOffering() || StoriBuilder.allEntrepreneursOffering) {
+			return;
+		}
+		
+		e = (ST)meet(ST.class);
+		
+		//if (e != null && !(e instanceof Causator) && !(e instanceof Effectuator) && !e.isOffering()) {
+		if (e != null && !(e instanceof EffectuatorST) && !e.isOffering()) {
+			
+			setNegotiating(true);
+			StoriBuilder.printMessage("Deal offered from effectuator to entrepreneur.");
+			
+			if (!e.processOffer(getGoal().getProductVector())) {				
+				int[] diff = StoriBuilder.diff(goal.getProductVector(), e.getGoal().getProductVector());
+				
+				double changeCost = 0;
+				
+				for (int i = 0; i < diff.length; i++) {
+					if (diff[i] == 1) {
+						changeCost += StoriBuilder.productElementCost[i];
+					}
+				}
+				
+				if (changeCost <=  (availableMeans.get(0).getMoney() * Parameters.affordableLoss) / 100.0) {
+					if (e.processOffer(e.getGoal().getProductVector())) {
+						goal = e.getGoal();
+						availableMeans.get(0).setMoney(availableMeans.get(0).getMoney() - changeCost);
+						Commitment c = new Commitment(e);
+						c.setGoal(e.getGoal());
+						commitmentList.add(c);						
+						StoriBuilder.effectuationNetwork.addEdge(this, e);
+						productRefinedOnce = true;
+						setOffering(true);
+						StoriBuilder.printMessage("Effectual commitment estabilished!");
+					}
+				} else {
+					Means m = e.askCommitment(diff);
+					if (m != null) {
+						goal = e.getGoal();				
+						availableMeans.add(m);
+						Commitment c = new Commitment(e);
+						c.setGoal(e.getGoal());
+						c.setMeans(m);
+						commitmentList.add(c);
+						StoriBuilder.effectuationNetwork.addEdge(this, e);		
+						productRefinedOnce = true;
+						setOffering(true);
+						StoriBuilder.printMessage("Effectual commitment estabilished!");
+					}
+				}
+			} else {
+				Commitment c = new Commitment(e);
+				c.setGoal(e.getGoal());
+				commitmentList.add(c);
+				StoriBuilder.effectuationNetwork.addEdge(this, e);
+				setOffering(true);
+				StoriBuilder.printMessage("Effectuators deal accepted by entrepreneur!");
+			}
+			
+			e.setNegotiating(false);
+			setNegotiating(false);
 		}
 	}
 	
@@ -95,78 +169,4 @@ public class EffectuatorST extends ST {
 		
 		return false;
 	}
-	
-	
-	/* 
-	 * Offers the product to an entrepreneur = ST 
-	 */
-	@ScheduledMethod(start=2,interval=2,priority=1)
-	@Override	
-	public void offer() {
-		ST e = null;
-		
-		if (isOffering() || StoriBuilder.allEntrepreneursOffering) {
-			return;
-		}
-		
-		e = (ST)meet(ST.class);
-		
-		//if (e != null && !(e instanceof Causator) && !(e instanceof Effectuator) && !e.isOffering()) {
-		if (e != null && !(e instanceof EffectuatorST) && !e.isOffering()) {
-			
-			setNegotiating(true);
-			StoriBuilder.printMessage("Deal offered from effectuator to entrepreneur.");
-			
-			if (!e.processOffer(getGoal().getProductVector())) {				
-				int[] diff = StoriBuilder.diff(goal.getProductVector(), e.getGoal().getProductVector());
-				
-				double changeCost = 0;
-				
-				for (int i = 0; i < diff.length; i++) {
-					if (diff[i] == 1) {
-						changeCost += StoriBuilder.productElementCost[i];
-					}
-				}
-				
-				if (changeCost <=  (availableMeans.get(0).getMoney() * Parameters.affordableLoss) / 100.0) {
-					if (e.processOffer(e.getGoal().getProductVector())) {
-						goal = e.getGoal();
-						availableMeans.get(0).setMoney(availableMeans.get(0).getMoney() - changeCost);
-						Commitment c = new Commitment(e);
-						c.setGoal(e.getGoal());
-						commitmentList.add(c);						
-						StoriBuilder.effectuationNetwork.addEdge(this, e);
-						productRefinedOnce = true;
-						setOffering(true);
-						StoriBuilder.printMessage("Effectual commitment estabilished!");
-					}
-				} else {
-					Means m = e.askCommitment(diff);
-					if (m != null) {
-						goal = e.getGoal();				
-						availableMeans.add(m);
-						Commitment c = new Commitment(e);
-						c.setGoal(e.getGoal());
-						c.setMeans(m);
-						commitmentList.add(c);
-						StoriBuilder.effectuationNetwork.addEdge(this, e);		
-						productRefinedOnce = true;
-						setOffering(true);
-						StoriBuilder.printMessage("Effectual commitment estabilished!");
-					}
-				}
-			} else {
-				Commitment c = new Commitment(e);
-				c.setGoal(e.getGoal());
-				commitmentList.add(c);				
-				StoriBuilder.effectuationNetwork.addEdge(this, e);
-				setOffering(true);
-				StoriBuilder.printMessage("Effectuators deal accepted by entrepreneur!");
-			}
-			
-			e.setNegotiating(false);
-			setNegotiating(false);
-		}
-	}
-
 }

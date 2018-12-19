@@ -55,7 +55,10 @@ public class PD extends Agent {
 	/**
 	 *  Adapts product vector based on neighbours demand and simulation parameters 
 	 */
-	public void adaptProductVector() {		
+	public void adaptProductVector() {	
+		
+		//System.out.println("PD adaptProductVector()");
+		
 		HashMap<Integer, Integer> neighboursAdaption = new HashMap<Integer, Integer>();
 		
 		double threshold = Parameters.adaptationThreshold / 100.0;

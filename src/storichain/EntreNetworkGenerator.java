@@ -62,8 +62,33 @@ public abstract class EntreNetworkGenerator implements NetworkGenerator<Object> 
 		this.network = network;
 	}
 	
+	/**
+	 * @return the edgesPerStep
+	 */
+	public int getEdgesPerStep() {
+		return edgesPerStep;
+	}
+
+	/**
+	 * @param edgesPerStep the edgesPerStep to set
+	 */
+	public void seEdgesPerStep(int edgesPerStep) {
+		this.edgesPerStep = edgesPerStep;
+	}
+
+	
+	/**
+	 * @return the edgeProbability
+	 */
 	public double getEdgeProbability() {
 		return edgeProbability;
+	}
+
+	/**
+	 * @param edgeProbability the edgeProbability to set
+	 */
+	public void setEdgeProbability(double edgeProbability) {
+		this.edgeProbability = edgeProbability;
 	}
 	
 	/**
@@ -71,13 +96,11 @@ public abstract class EntreNetworkGenerator implements NetworkGenerator<Object> 
 	 * @param p initial wiring probability
 	 */
 	protected void initializeNetwork(double pp) {
-
+		
 		for (int i = 0; i < 10 && i < totalPD; i++) {
 
 			PD p1 = new PD(context, network, StoriBuilder.nextId("P"));
-
 			context.add(p1);
-
 			StoriBuilder.pdes.add(p1);
 			totalPD--;
 		}
@@ -85,6 +108,7 @@ public abstract class EntreNetworkGenerator implements NetworkGenerator<Object> 
 	}
 	
 	public void randomWire(double p) {
+		
 		//Initial wiring using a random network
 		for (Object i: network.getNodes()) {
 			for (Object j: network.getNodes()) {

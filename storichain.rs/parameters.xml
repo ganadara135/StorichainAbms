@@ -6,15 +6,15 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
 	
 	<parameter name="numberOfPD" displayName="Number of PD" type="int" 
-						defaultValue="50" 
+						defaultValue="10" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter" />
 	<parameter name="numberOfRD" displayName="Number of RD" type="int" 
-						defaultValue="50" 
+						defaultValue="10" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter" />
 	<parameter name="numberOfST" displayName="Number of ST" type="int" 
-						defaultValue="50" 
+						defaultValue="10" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter" />
 	<parameter name="adaptationSpeed" displayName="Adaptation speed  (1-5)" type="int" 

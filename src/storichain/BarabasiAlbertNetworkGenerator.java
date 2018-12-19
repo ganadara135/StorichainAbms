@@ -19,12 +19,8 @@ public class BarabasiAlbertNetworkGenerator extends EntreNetworkGenerator implem
 	public Network<Object> createNetwork(Network<Object> network) {		
 
 		this.network = network;
-		
-		System.out.println("aaaaaaaaaaaaaaaaaaaaaaa");
 
 		initializeNetwork(getEdgeProbability());	
-		
-		System.out.println("bbbbbbbbbbbbbbbbbbbbb");
 
 		// Evolve network using preferential attachment
 		evolveNetwork();
@@ -37,6 +33,8 @@ public class BarabasiAlbertNetworkGenerator extends EntreNetworkGenerator implem
 	 * @param n Node to be attached
 	 */
 	public void attachNode(Object n) {
+		//System.out.println("attachNode() in Barabasi");
+		
 		context.add(n);
 		//When checking the network degree, look only at the "entreprenurial network",
 		// i.e at the network without means and goals

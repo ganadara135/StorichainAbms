@@ -10,24 +10,27 @@ import java.util.List;
 import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
 import edu.uci.ics.jung.graph.Graph;
 import repast.simphony.context.Context;
+import repast.simphony.context.DefaultContext;
 import repast.simphony.context.space.graph.ContextJungNetwork;
 import repast.simphony.context.space.graph.NetworkBuilder;
 import repast.simphony.dataLoader.ContextBuilder;
 import repast.simphony.engine.schedule.ISchedule;
 import repast.simphony.engine.schedule.ScheduleParameters;
 import repast.simphony.engine.schedule.ScheduledMethod;
+import repast.simphony.engine.watcher.Watch;
+import repast.simphony.engine.watcher.WatcherTriggerSchedule;
 import repast.simphony.random.RandomHelper;
 import repast.simphony.space.graph.EdgeCreator;
 import repast.simphony.space.graph.Network;
 import repast.simphony.space.graph.RepastEdge;
 
-public class StoriBuilder implements ContextBuilder<Object> {
+public class StoriBuilder extends DefaultContext<Object> implements ContextBuilder<Object> {
 
 	public static Context<Object> context;
 	public static Network<Object> network;
 	public static Network<Object> effectuationNetwork;	
 	private static EntreNetworkGenerator networkGenerator;
-	public static boolean allEntrepreneursOffering;
+	public static boolean allEntrepreneursOffering;   // to check to stop simulation
 	public static ArrayList<ST> stes;
 	//public static ArrayList<RD> rdes;
 	public static ArrayList<PD> pdes;
@@ -61,17 +64,13 @@ public class StoriBuilder implements ContextBuilder<Object> {
 		
 		buildNetworks();
 		
-		
-		
 		effectuatorST = new EffectuatorST(context, network, "StoryTeller");
 	//	effectuatorRD = new EffectuatorRD(context, network, "Reader");
 		effectuatorPD = new EffectuatorPD(context, network, "Producer");
-		
-		System.out.println("55555555555555555555555");
+
 		
 		//Network generation
 		if (Parameters.networkGenerator.equals("BarabasiAlbert")) {
-			System.out.println("6666666666666666666666666");
 			networkGenerator = new BarabasiAlbertNetworkGenerator(context);
 		} else if (Parameters.networkGenerator.equals("ZombieNetwork")) {
 			networkGenerator = new ZombieNetworkGenerator(context);
@@ -79,31 +78,22 @@ public class StoriBuilder implements ContextBuilder<Object> {
 			networkGenerator = new RandomNetworkGenerator(context, Parameters.randomNetworkDensity);
 		}
 		
-		System.out.println("7777777777777777777777");
-		
 		networkGenerator.setTotalST(Parameters.numberOfST);
 		networkGenerator.setTotalPD(Parameters.numberOfPD);
 		//networkGenerator.setTotalRD(Parameters.numberOfRD);
-		
+		networkGenerator.seEdgesPerStep(Parameters.edgesPerStep);
+		networkGenerator.setEdgeProbability(Parameters.edgeProbability);
 		
 		network = networkGenerator.createNetwork(network);
 		
-		System.out.println("888888888888888888888888");
-		
 		initializeDemandVectors();
-		
-		System.out.println("99999999999999999999999");
 		aggregateProductVectors();
 		
 		calculateBetweennesCentralities();
 		
 		allEntrepreneursOffering = false;
 		
-		System.out.println("00000000000000000000000");
-		
 		scheduleActions();
-		
-		
 		
 		return context;
 	}
@@ -194,8 +184,7 @@ public class StoriBuilder implements ContextBuilder<Object> {
 	/**
 	 * Calculates the betweenness centrality for each node, using the JUNG implemented
 	 * betweenness centrality calculator algorithm 
-	 */
-	
+	 */	
 	public void calculateBetweennesCentralities() {			
 		
 		ContextJungNetwork<Object> N = (ContextJungNetwork<Object>)network;
@@ -245,7 +234,6 @@ public class StoriBuilder implements ContextBuilder<Object> {
 	
 	public void scheduleActions() {
 		ISchedule schedule = repast.simphony.engine.environment.RunEnvironment.getInstance().getCurrentSchedule();
-		
 		
 		//Schedule adaptProductVector for each ST
 		//ArrayList<ST> st = new ArrayList<ST>();
@@ -320,6 +308,8 @@ public class StoriBuilder implements ContextBuilder<Object> {
 	@ScheduledMethod(start=1,interval=2)
 	public void evolveNetwork() {
 		
+		//System.out.println("StoriBuilder evolveNetwork");
+		
 		double r = RandomHelper.nextDoubleFromTo(0, 1);	
 		
 		if (r < Parameters.newConnectionsProbability) {
@@ -334,7 +324,7 @@ public class StoriBuilder implements ContextBuilder<Object> {
 					attached = c;
 					break;
 				case 2:
-					ST e = new ST(context, network, nextId("S"));	
+					ST e = new ST(context, network, nextId("S"));
 					e.generateGoal();
 					networkGenerator.attachNode(e);					
 					attached = e;				
@@ -344,9 +334,28 @@ public class StoriBuilder implements ContextBuilder<Object> {
 			for (RepastEdge<Object> edge: network.getEdges(attached)) {
 				((CustomNetworkEdge) edge).setThickness(2.0); 
 				((CustomNetworkEdge) edge).setColor(Color.red);
-			}		
+				//System.out.println("Check Color.red");
+			}
 			
 			calculateBetweennesCentralities();
 		}	
 	}
+	
+	/**
+	 * Checks if all entrepreneurs are offering and update the relevant flag
+	  
+	@Watch(watcheeClassName="EffectuationCausation.Entrepreneur",
+			watcheeFieldNames="offering",whenToTrigger=WatcherTriggerSchedule.IMMEDIATE)
+	public void checkAllEntrepreneursOffering() {
+		for (Object o: context.getObjects(Entrepreneur.class)) {
+			if (!((Entrepreneur)o).isOffering()) {
+				allEntrepreneursOffering = false;
+			}
+			return;
+		}
+		allEntrepreneursOffering = true;
+	}
+	
+	*/
+	
 }
